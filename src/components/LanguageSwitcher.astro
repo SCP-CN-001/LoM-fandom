@@ -1,5 +1,6 @@
 ---
 import { locales, type Locale } from '../i18n/config';
+import { withBasePath } from '../lib/url';
 
 type Props = {
   locale: Locale;
@@ -9,7 +10,13 @@ type Props = {
 const { locale, pathname } = Astro.props;
 
 function buildLocaleLink(targetLocale: Locale) {
-  const parts = pathname.split('/').filter(Boolean);
+  const basePath = import.meta.env.BASE_URL.endsWith('/')
+    ? import.meta.env.BASE_URL.slice(0, -1)
+    : import.meta.env.BASE_URL;
+  const normalizedPathname = pathname.startsWith(basePath)
+    ? pathname.slice(basePath.length)
+    : pathname;
+  const parts = normalizedPathname.split('/').filter(Boolean);
   const hasLocalePrefix = parts.length > 0 && locales.includes(parts[0] as Locale);
 
   if (hasLocalePrefix) {
@@ -18,7 +25,7 @@ function buildLocaleLink(targetLocale: Locale) {
     parts.unshift(targetLocale);
   }
 
-  return `/${parts.join('/')}`;
+  return withBasePath(parts.join('/'));
 }
 ---
 

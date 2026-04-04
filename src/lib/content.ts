@@ -1,6 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 
 import { defaultLocale, type Locale, locales } from '../i18n/config';
+import { withBasePath } from './url';
 
 export type EntityCollection = 'characters' | 'powers' | 'events' | 'locations';
 
@@ -66,7 +67,7 @@ export async function getLocalizedEntryBySlug<T extends EntityCollection>(
 
 export function localizedPath(locale: Locale, path: string): string {
   const cleaned = path.startsWith('/') ? path.slice(1) : path;
-  return cleaned ? `/${locale}/${cleaned}` : `/${locale}`;
+  return withBasePath(cleaned ? `${locale}/${cleaned}` : locale);
 }
 
 export function getLocalePaths() {

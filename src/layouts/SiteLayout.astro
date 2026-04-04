@@ -2,6 +2,7 @@
 import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import { t, type Locale } from '../i18n/config';
 import { localizedPath } from '../lib/content';
+import { withBasePath } from '../lib/url';
 import '../styles/site.css';
 
 type Props = {
@@ -22,8 +23,8 @@ const navItems = [
 <html lang={locale}>
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href={withBasePath('favicon.svg')} />
+    <link rel="icon" href={withBasePath('favicon.ico')} />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
