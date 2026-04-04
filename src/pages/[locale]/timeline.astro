@@ -1,0 +1,110 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import ViewModeToggle from '../../components/ViewModeToggle.astro';
+import { t, type Locale } from '../../i18n/config';
+import { getLocalePaths, getLocalizedEntries, localizedPath } from '../../lib/content';
+
+export function getStaticPaths() {
+  return getLocalePaths();
+}
+
+const locale = Astro.params.locale as Locale;
+const view = Astro.url.searchParams.get('view') === 'list' ? 'list' : 'interactive';
+const events = await getLocalizedEntries('events', locale);
+const characters = await getLocalizedEntries('characters', locale);
+const locations = await getLocalizedEntries('locations', locale);
+
+function lookupName(entityId: string, type: 'characters' | 'locations') {
+  const source = type === 'characters' ? characters : locations;
+  return source.find((entry) => entry.data.entityId === entityId);
+}
+---
+
+<SiteLayout locale={locale} title={t(locale, 'nav.timeline')}>
+  <h1>{t(locale, 'nav.timeline')}</h1>
+  <ViewModeToggle
+    locale={locale}
+    route="timeline"
+    activeView={view}
+    interactiveValue="interactive"
+    listValue="list"
+  />
+  <p class="meta">
+    {
+      locale === 'zh'
+        ? '按 order 字段排序。你可以继续替换为可缩放时间线组件。'
+        : 'Sorted by the order field. You can later replace this with an interactive timeline component.'
+    }
+  </p>
+
+  {
+    events.length === 0 ? (
+      <article class="card">
+        <p>{locale === 'zh' ? '暂时没有事件数据。' : 'No event data yet.'}</p>
+      </article>
+    ) : view === 'interactive' ? (
+      <section class="timeline-list">
+        {events.map((event) => {
+          const participants = event.data.related.characters
+            .map((id) => lookupName(id, 'characters'))
+            .filter((entry): entry is (typeof characters)[number] => Boolean(entry));
+          const places = event.data.related.locations
+            .map((id) => lookupName(id, 'locations'))
+            .filter((entry): entry is (typeof locations)[number] => Boolean(entry));
+
+          return (
+            <article class="card timeline-item">
+              <p class="meta">
+                #{event.data.order} · {event.data.dateLabel}
+              </p>
+              <h2>
+                <a href={localizedPath(locale, `events/${event.slug}`)}>{event.data.title}</a>
+              </h2>
+
+              {participants.length > 0 && (
+                <p class="meta">
+                  {locale === 'zh' ? '人物：' : 'Characters: '}
+                  {participants.map((entry, idx) => (
+                    <>
+                      <a href={localizedPath(locale, `characters/${entry.slug}`)}>
+                        {entry.data.name}
+                      </a>
+                      {idx < participants.length - 1 ? ', ' : ''}
+                    </>
+                  ))}
+                </p>
+              )}
+
+              {places.length > 0 && (
+                <p class="meta">
+                  {locale === 'zh' ? '地点：' : 'Locations: '}
+                  {places.map((entry, idx) => (
+                    <>
+                      <a href={localizedPath(locale, `locations/${entry.slug}`)}>
+                        {entry.data.name}
+                      </a>
+                      {idx < places.length - 1 ? ', ' : ''}
+                    </>
+                  ))}
+                </p>
+              )}
+            </article>
+          );
+        })}
+      </section>
+    ) : (
+      <section class="grid">
+        {events.map((event) => (
+          <article class="card">
+            <h2>
+              <a href={localizedPath(locale, `events/${event.slug}`)}>{event.data.title}</a>
+            </h2>
+            <p class="meta">
+              #{event.data.order} · {event.data.dateLabel}
+            </p>
+          </article>
+        ))}
+      </section>
+    )
+  }
+</SiteLayout>

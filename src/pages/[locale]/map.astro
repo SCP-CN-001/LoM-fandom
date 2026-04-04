@@ -1,0 +1,60 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import ViewModeToggle from '../../components/ViewModeToggle.astro';
+import { t, type Locale } from '../../i18n/config';
+import { getLocalePaths, getLocalizedEntries, localizedPath } from '../../lib/content';
+
+export function getStaticPaths() {
+  return getLocalePaths();
+}
+
+const locale = Astro.params.locale as Locale;
+const view = Astro.url.searchParams.get('view') === 'list' ? 'list' : 'interactive';
+const locations = await getLocalizedEntries('locations', locale);
+---
+
+<SiteLayout locale={locale} title={t(locale, 'nav.map')}>
+  <h1>{t(locale, 'nav.map')}</h1>
+  <ViewModeToggle
+    locale={locale}
+    route="map"
+    activeView={view}
+    interactiveValue="interactive"
+    listValue="list"
+  />
+
+  {
+    locations.length === 0 ? (
+      <article class="card">
+        <p>{locale === 'zh' ? '暂时没有地点数据。' : 'No location data yet.'}</p>
+      </article>
+    ) : view === 'interactive' ? (
+      <section class="map-canvas" aria-label="map hotspots">
+        {locations.map((location, index) => {
+          const x = location.data.mapX ?? ((index * 17) % 80) + 10;
+          const y = location.data.mapY ?? ((index * 13) % 70) + 15;
+          return (
+            <a
+              class="map-point"
+              href={localizedPath(locale, `locations/${location.slug}`)}
+              style={`left: ${x}%; top: ${y}%;`}
+            >
+              {location.data.name}
+            </a>
+          );
+        })}
+      </section>
+    ) : (
+      <section class="grid">
+        {locations.map((location) => (
+          <article class="card">
+            <h2>
+              <a href={localizedPath(locale, `locations/${location.slug}`)}>{location.data.name}</a>
+            </h2>
+            <p class="meta">{location.data.region || '-'}</p>
+          </article>
+        ))}
+      </section>
+    )
+  }
+</SiteLayout>

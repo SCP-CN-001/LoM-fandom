@@ -1,0 +1,38 @@
+---
+import { render } from 'astro:content';
+
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import { type Locale } from '../../../i18n/config';
+import { getLocalizedEntries } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  const paths: Array<{ params: { locale: Locale; slug: string } }> = [];
+
+  for (const locale of ['zh', 'en'] as const) {
+    const entries = await getLocalizedEntries('powers', locale);
+    for (const entry of entries) {
+      paths.push({ params: { locale, slug: entry.slug } });
+    }
+  }
+
+  return paths;
+}
+
+const locale = Astro.params.locale as Locale;
+const slug = Astro.params.slug as string;
+
+const entry = (await getLocalizedEntries('powers', locale)).find((item) => item.slug === slug);
+if (!entry) {
+  return Astro.redirect(`/${locale}/powers`);
+}
+
+const { Content } = await render(entry);
+---
+
+<SiteLayout locale={locale} title={entry.data.name}>
+  <article class="card">
+    <h1>{entry.data.name}</h1>
+    <p class="meta">{entry.data.system || '-'}</p>
+    <Content />
+  </article>
+</SiteLayout>

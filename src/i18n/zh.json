@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "home": "首页",
+    "worldview": "世界观",
+    "powers": "途径",
+    "timeline": "时间线",
+    "events": "事件",
+    "relationship": "角色关系",
+    "characters": "角色",
+    "map": "地图",
+    "locations": "地点"
+  },
+  "labels": {
+    "language": "语言",
+    "interactive": "交互视图",
+    "list": "列表视图",
+    "characters": "角色",
+    "powers": "途径",
+    "events": "事件",
+    "locations": "地点"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "home": "Home",
+    "worldview": "Worldview",
+    "characters": "Characters",
+    "powers": "Power System",
+    "events": "Events",
+    "locations": "Locations",
+    "relationship": "Character Network",
+    "timeline": "Timeline",
+    "map": "Map"
+  },
+  "labels": {
+    "language": "Language",
+    "interactive": "Interactive",
+    "list": "List",
+    "characters": "Characters",
+    "powers": "Powers",
+    "events": "Events",
+    "locations": "Locations"
+  }
+}

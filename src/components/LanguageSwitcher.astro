@@ -1,0 +1,37 @@
+---
+import { locales, type Locale } from '../i18n/config';
+
+type Props = {
+  locale: Locale;
+  pathname: string;
+};
+
+const { locale, pathname } = Astro.props;
+
+function buildLocaleLink(targetLocale: Locale) {
+  const parts = pathname.split('/').filter(Boolean);
+  const hasLocalePrefix = parts.length > 0 && locales.includes(parts[0] as Locale);
+
+  if (hasLocalePrefix) {
+    parts[0] = targetLocale;
+  } else {
+    parts.unshift(targetLocale);
+  }
+
+  return `/${parts.join('/')}`;
+}
+---
+
+<div class="lang-switcher" aria-label="Language switcher">
+  {
+    locales.map((target) => (
+      <a
+        href={buildLocaleLink(target)}
+        aria-current={target === locale ? 'page' : undefined}
+        class={target === locale ? 'active' : ''}
+      >
+        {target.toUpperCase()}
+      </a>
+    ))
+  }
+</div>

@@ -1,0 +1,91 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import ViewModeToggle from '../../components/ViewModeToggle.astro';
+import { t, type Locale } from '../../i18n/config';
+import { getLocalePaths, getLocalizedEntries, localizedPath } from '../../lib/content';
+
+export function getStaticPaths() {
+  return getLocalePaths();
+}
+
+const locale = Astro.params.locale as Locale;
+const view = Astro.url.searchParams.get('view') === 'list' ? 'list' : 'interactive';
+const characters = await getLocalizedEntries('characters', locale);
+
+const relationRows = characters
+  .map((character) => {
+    const linked = character.data.related.characters
+      .map((entityId) => characters.find((entry) => entry.data.entityId === entityId))
+      .filter((entry): entry is (typeof characters)[number] => Boolean(entry));
+
+    return {
+      character,
+      linked,
+    };
+  })
+  .filter((row) => row.linked.length > 0);
+---
+
+<SiteLayout locale={locale} title={t(locale, 'nav.relationship')}>
+  <h1>{t(locale, 'nav.relationship')}</h1>
+  <ViewModeToggle
+    locale={locale}
+    route="relationship"
+    activeView={view}
+    interactiveValue="interactive"
+    listValue="list"
+  />
+  <p class="meta">
+    {
+      locale === 'zh'
+        ? '当前是关系网络列表版，后续可无缝替换为 Cytoscape.js 可视化图。'
+        : 'This is a relation list view for now. You can upgrade it to a Cytoscape.js graph later.'
+    }
+  </p>
+
+  {
+    relationRows.length === 0 ? (
+      <article class="card">
+        <p>
+          {locale === 'zh'
+            ? '暂时没有人物关系数据。请在人物条目的 related.characters 中填入 entityId。'
+            : 'No relationship data yet. Add entity IDs to related.characters in character entries.'}
+        </p>
+      </article>
+    ) : view === 'interactive' ? (
+      <section class="grid">
+        {relationRows.map(({ character, linked }) => (
+          <article class="card">
+            <h2>
+              <a href={localizedPath(locale, `characters/${character.slug}`)}>
+                {character.data.name}
+              </a>
+            </h2>
+            <ul>
+              {linked.map((target) => (
+                <li>
+                  <a href={localizedPath(locale, `characters/${target.slug}`)}>
+                    {target.data.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </section>
+    ) : (
+      <section class="grid">
+        {characters.map((character) => (
+          <article class="card">
+            <h2>
+              <a href={localizedPath(locale, `characters/${character.slug}`)}>
+                {character.data.name}
+              </a>
+            </h2>
+            <p class="meta">{character.data.faction || '-'}</p>
+          </article>
+        ))}
+      </section>
+    )
+  }
+</SiteLayout>

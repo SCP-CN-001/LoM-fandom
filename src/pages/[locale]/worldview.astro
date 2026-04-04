@@ -1,0 +1,91 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import ViewModeToggle from '../../components/ViewModeToggle.astro';
+import { t, type Locale } from '../../i18n/config';
+import { getLocalePaths, getLocalizedEntries, localizedPath } from '../../lib/content';
+
+export function getStaticPaths() {
+  return getLocalePaths();
+}
+
+const locale = Astro.params.locale as Locale;
+const view = Astro.url.searchParams.get('view') === 'list' ? 'list' : 'interactive';
+
+const [powers, characters, events, locations] = await Promise.all([
+  getLocalizedEntries('powers', locale),
+  getLocalizedEntries('characters', locale),
+  getLocalizedEntries('events', locale),
+  getLocalizedEntries('locations', locale),
+]);
+
+const powerStats = new Map<string, number>();
+for (const power of powers) {
+  const key = power.data.system || (locale === 'zh' ? '未分类体系' : 'Uncategorized');
+  powerStats.set(key, (powerStats.get(key) ?? 0) + 1);
+}
+
+const systemCards = [...powerStats.entries()].sort((a, b) => b[1] - a[1]);
+---
+
+<SiteLayout locale={locale} title={t(locale, 'nav.worldview')}>
+  <h1>{t(locale, 'nav.worldview')}</h1>
+  <ViewModeToggle
+    locale={locale}
+    route="worldview"
+    activeView={view}
+    interactiveValue="interactive"
+    listValue="list"
+  />
+
+  {
+    view === 'interactive' ? (
+      <>
+        <section class="grid">
+          <article class="card">
+            <>
+              <h2>{t(locale, 'labels.characters')}</h2>
+              <p>{characters.length}</p>
+            </>
+          </article>
+          <article class="card">
+            <>
+              <h2>{t(locale, 'labels.powers')}</h2>
+              <p>{powers.length}</p>
+            </>
+          </article>
+          <article class="card">
+            <>
+              <h2>{t(locale, 'labels.events')}</h2>
+              <p>{events.length}</p>
+            </>
+          </article>
+          <article class="card">
+            <>
+              <h2>{t(locale, 'labels.locations')}</h2>
+              <p>{locations.length}</p>
+            </>
+          </article>
+        </section>
+        <section class="grid">
+          {systemCards.map(([name, count]) => (
+            <article class="card">
+              <h3>{name}</h3>
+              <p class="meta">{count}</p>
+            </article>
+          ))}
+        </section>
+      </>
+    ) : (
+      <section class="grid">
+        {powers.map((power) => (
+          <article class="card">
+            <h3>
+              <a href={localizedPath(locale, `powers/${power.slug}`)}>{power.data.name}</a>
+            </h3>
+            <p class="meta">{power.data.system || '-'}</p>
+          </article>
+        ))}
+      </section>
+    )
+  }
+</SiteLayout>

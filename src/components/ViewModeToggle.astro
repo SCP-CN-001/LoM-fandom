@@ -1,0 +1,26 @@
+---
+import { t, type Locale } from '../i18n/config';
+import { localizedPath } from '../lib/content';
+
+type Props = {
+  locale: Locale;
+  route: string;
+  activeView: string;
+  interactiveValue: string;
+  listValue: string;
+};
+
+const { locale, route, activeView, interactiveValue, listValue } = Astro.props;
+
+const interactiveHref = `${localizedPath(locale, route)}?view=${interactiveValue}`;
+const listHref = `${localizedPath(locale, route)}?view=${listValue}`;
+---
+
+<div class="mode-toggle">
+  <a class={activeView === interactiveValue ? 'active' : ''} href={interactiveHref}>
+    {t(locale, 'labels.interactive')}
+  </a>
+  <a class={activeView === listValue ? 'active' : ''} href={listHref}>
+    {t(locale, 'labels.list')}
+  </a>
+</div>
