@@ -7,5 +7,5 @@ export function getStaticPaths() {
 }
 
 const locale = Astro.params.locale as Locale;
-return Astro.redirect(`/${locale}/worldview?view=list`);
+return Astro.redirect(`${import.meta.env.BASE_URL}${locale}/worldview?view=list`);
 ---
