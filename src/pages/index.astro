@@ -1,3 +1,5 @@
 ---
-return Astro.redirect(`${import.meta.env.BASE_URL}zh`);
+import { withBasePath } from '../lib/url';
+
+return Astro.redirect(withBasePath('zh'));
 ---

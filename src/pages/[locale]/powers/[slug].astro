@@ -4,6 +4,7 @@ import { render } from 'astro:content';
 import SiteLayout from '../../../layouts/SiteLayout.astro';
 import { type Locale } from '../../../i18n/config';
 import { getLocalizedEntries } from '../../../lib/content';
+import { withBasePath } from '../../../lib/url';
 
 export async function getStaticPaths() {
   const paths: Array<{ params: { locale: Locale; slug: string } }> = [];
@@ -23,7 +24,7 @@ const slug = Astro.params.slug as string;
 
 const entry = (await getLocalizedEntries('powers', locale)).find((item) => item.slug === slug);
 if (!entry) {
-  return Astro.redirect(`${import.meta.env.BASE_URL}${locale}/powers`);
+  return Astro.redirect(withBasePath(`${locale}/powers`));
 }
 
 const { Content } = await render(entry);
