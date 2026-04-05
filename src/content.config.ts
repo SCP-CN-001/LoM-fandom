@@ -3,9 +3,45 @@ import { defineCollection, z } from 'astro:content';
 
 const sharedReferences = z.object({
   characters: z.array(z.string()).default([]),
+  organizations: z.array(z.string()).default([]),
   powers: z.array(z.string()).default([]),
   events: z.array(z.string()).default([]),
   locations: z.array(z.string()).default([]),
+});
+
+const characterRelationType = z.enum([
+  'family',
+  'friend',
+  'ally',
+  'colleague',
+  'enemy',
+  'leader',
+  'teammate',
+  'acquaintance',
+]);
+
+const characterRelationLink = z.object({
+  targetId: z.string(),
+  type: characterRelationType,
+  direction: z.enum(['undirected', 'directed']).default('undirected'),
+  note: z.string().optional(),
+});
+
+const organizationRelationType = z.enum([
+  'friend',
+  'ally',
+  'colleague',
+  'enemy',
+  'leader',
+  'teammate',
+  'acquaintance',
+]);
+
+const organizationRelationLink = z.object({
+  targetId: z.string(),
+  type: organizationRelationType,
+  direction: z.enum(['undirected', 'directed']).default('undirected'),
+  note: z.string().optional(),
 });
 
 const characters = defineCollection({
@@ -18,15 +54,48 @@ const characters = defineCollection({
     locale: z.enum(['zh', 'en']),
     name: z.string(),
     aliases: z.array(z.string()).default([]),
-    faction: z.string().optional(),
+    organizationIds: z.array(z.string()).default([]),
     rank: z.string().optional(),
     tags: z.array(z.string()).default([]),
-    related: sharedReferences.default({
-      characters: [],
-      powers: [],
-      events: [],
-      locations: [],
-    }),
+    related: sharedReferences
+      .extend({
+        characterLinks: z.array(characterRelationLink).default([]),
+      })
+      .default({
+        characters: [],
+        organizations: [],
+        powers: [],
+        events: [],
+        locations: [],
+        characterLinks: [],
+      }),
+  }),
+});
+
+const organizations = defineCollection({
+  loader: glob({
+    pattern: '{zh,en}/organizations/**/*.{md,mdx}',
+    base: './src/content',
+  }),
+  schema: z.object({
+    entityId: z.string(),
+    locale: z.enum(['zh', 'en']),
+    name: z.string(),
+    aliases: z.array(z.string()).default([]),
+    kind: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+    related: sharedReferences
+      .extend({
+        organizationLinks: z.array(organizationRelationLink).default([]),
+      })
+      .default({
+        characters: [],
+        organizations: [],
+        powers: [],
+        events: [],
+        locations: [],
+        organizationLinks: [],
+      }),
   }),
 });
 
@@ -44,6 +113,7 @@ const powers = defineCollection({
     tags: z.array(z.string()).default([]),
     related: sharedReferences.default({
       characters: [],
+      organizations: [],
       powers: [],
       events: [],
       locations: [],
@@ -65,6 +135,7 @@ const events = defineCollection({
     tags: z.array(z.string()).default([]),
     related: sharedReferences.default({
       characters: [],
+      organizations: [],
       powers: [],
       events: [],
       locations: [],
@@ -87,6 +158,7 @@ const locations = defineCollection({
     tags: z.array(z.string()).default([]),
     related: sharedReferences.default({
       characters: [],
+      organizations: [],
       powers: [],
       events: [],
       locations: [],
@@ -107,6 +179,7 @@ const docs = defineCollection({
 
 export const collections = {
   characters,
+  organizations,
   powers,
   events,
   locations,

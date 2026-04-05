@@ -1,0 +1,12 @@
+---
+import { getLocalePaths } from '../../lib/content';
+import { type Locale } from '../../i18n/config';
+import { withBasePath } from '../../lib/url';
+
+export function getStaticPaths() {
+  return getLocalePaths();
+}
+
+const locale = Astro.params.locale as Locale;
+return Astro.redirect(withBasePath(`${locale}/organization-relationship?view=list`));
+---

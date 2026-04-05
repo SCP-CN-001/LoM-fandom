@@ -27,13 +27,22 @@ if (!entry) {
   return Astro.redirect(withBasePath(`${locale}/characters`));
 }
 
+const organizations = await getLocalizedEntries('organizations', locale);
+const characterOrgs = organizations.filter((organization) =>
+  entry.data.organizationIds.includes(organization.data.entityId)
+);
+
 const { Content } = await render(entry);
 ---
 
 <SiteLayout locale={locale} title={entry.data.name}>
   <article class="card">
     <h1>{entry.data.name}</h1>
-    <p class="meta">{entry.data.faction || '-'}</p>
+    <p class="meta">
+      {characterOrgs.length > 0
+        ? characterOrgs.map((organization) => organization.data.name).join(' / ')
+        : '-'}
+    </p>
     <Content />
   </article>
 </SiteLayout>

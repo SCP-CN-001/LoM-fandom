@@ -2,6 +2,8 @@
   "nav": {
     "home": "首页",
     "worldview": "世界观",
+    "organizations": "组织",
+    "organizationRelationship": "组织关系",
     "powers": "途径",
     "timeline": "时间线",
     "events": "事件",
@@ -17,6 +19,17 @@
     "characters": "角色",
     "powers": "途径",
     "events": "事件",
-    "locations": "地点"
+    "locations": "地点",
+    "relationTypes": {
+      "family": "亲属",
+      "friend": "朋友",
+      "ally": "盟友",
+      "colleague": "同僚",
+      "enemy": "敌人",
+      "leader": "领袖",
+      "teammate": "队友",
+      "acquaintance": "熟人"
+    },
+    "relationLegend": "关系类型"
   }
 }

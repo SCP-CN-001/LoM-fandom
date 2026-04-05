@@ -2,6 +2,8 @@
   "nav": {
     "home": "Home",
     "worldview": "Worldview",
+    "organizations": "Organizations",
+    "organizationRelationship": "Organization Network",
     "characters": "Characters",
     "powers": "Power System",
     "events": "Events",
@@ -17,6 +19,17 @@
     "characters": "Characters",
     "powers": "Powers",
     "events": "Events",
-    "locations": "Locations"
+    "locations": "Locations",
+    "relationTypes": {
+      "family": "Family",
+      "friend": "Friend",
+      "ally": "Ally",
+      "colleague": "Colleague",
+      "enemy": "Enemy",
+      "leader": "Leader",
+      "teammate": "Teammate",
+      "acquaintance": "Acquaintance"
+    },
+    "relationLegend": "Relation Types"
   }
 }

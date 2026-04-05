@@ -1,0 +1,78 @@
+---
+import { render } from 'astro:content';
+
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import { type Locale } from '../../../i18n/config';
+import { getLocalizedEntries, localizedPath } from '../../../lib/content';
+import { withBasePath } from '../../../lib/url';
+
+export async function getStaticPaths() {
+  const paths: Array<{ params: { locale: Locale; slug: string } }> = [];
+
+  for (const locale of ['zh', 'en'] as const) {
+    const entries = await getLocalizedEntries('organizations', locale);
+    for (const entry of entries) {
+      paths.push({ params: { locale, slug: entry.slug } });
+    }
+  }
+
+  return paths;
+}
+
+const locale = Astro.params.locale as Locale;
+const slug = Astro.params.slug as string;
+
+const organizations = await getLocalizedEntries('organizations', locale);
+const entry = organizations.find((item) => item.slug === slug);
+if (!entry) {
+  return Astro.redirect(withBasePath(`${locale}/organizations`));
+}
+
+const characters = await getLocalizedEntries('characters', locale);
+const members = characters.filter((character) =>
+  character.data.organizationIds.includes(entry.data.entityId)
+);
+
+const linkedOrganizations = entry.data.related.organizations
+  .map((entityId) => organizations.find((organization) => organization.data.entityId === entityId))
+  .filter((organization): organization is (typeof organizations)[number] => Boolean(organization));
+
+const { Content } = await render(entry);
+---
+
+<SiteLayout locale={locale} title={entry.data.name}>
+  <article class="card">
+    <h1>{entry.data.name}</h1>
+    <p class="meta">{entry.data.kind || '-'}</p>
+
+    <h2>{locale === 'zh' ? '成员' : 'Members'}</h2>
+    <ul>
+      {members.length > 0 ? (
+        members.map((member) => (
+          <li>
+            <a href={localizedPath(locale, `characters/${member.slug}`)}>{member.data.name}</a>
+          </li>
+        ))
+      ) : (
+        <li>{locale === 'zh' ? '暂无成员' : 'No members yet.'}</li>
+      )}
+    </ul>
+
+    {linkedOrganizations.length > 0 ? (
+      <>
+        <h2>{locale === 'zh' ? '相关组织' : 'Related Organizations'}</h2>
+        <ul>
+          {linkedOrganizations.map((organization) => (
+            <li>
+              <a href={localizedPath(locale, `organizations/${organization.slug}`)}>
+                {organization.data.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    ) : null}
+
+    <Content />
+  </article>
+</SiteLayout>

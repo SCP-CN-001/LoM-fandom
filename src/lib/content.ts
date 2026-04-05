@@ -3,7 +3,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import { defaultLocale, type Locale, locales } from '../i18n/config';
 import { withBasePath } from './url';
 
-export type EntityCollection = 'characters' | 'powers' | 'events' | 'locations';
+export type EntityCollection = 'characters' | 'organizations' | 'powers' | 'events' | 'locations';
 
 type LocalizedEntry<T extends EntityCollection> = CollectionEntry<T> & {
   slug: string;
