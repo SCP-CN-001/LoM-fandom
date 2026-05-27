@@ -1,3 +1,5 @@
+fandom_data/*
+
 # build output
 dist/
 # generated types
